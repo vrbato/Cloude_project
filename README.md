@@ -32,7 +32,21 @@ Výchozí předpoklady se odvozují z historie firmy (růst tržeb, průměrná 
 
 ## Nasazení na Cloudflare (jednorázově, ~5 minut)
 
-### Varianta A – přes web Cloudflare (doporučeno, bez instalace)
+### Varianta 0 – nahrání ZIP souboru (bez GitHubu a bez instalace)
+
+ZIP vytvoříte příkazem `npm run build:zip` (vznikne `dist/valuace-akcii.zip`). Obsahuje aplikaci, API jako `_worker.js` a `_routes.json`, které spouští API jen pro adresy `/api/*`.
+
+1. Přihlaste se na <https://dash.cloudflare.com> (stačí bezplatný účet).
+2. **Workers & Pages → Create application → Get started → Drag and drop your files**.
+3. Zadejte název projektu, např. `valuace-akcii` (bude součástí adresy).
+4. Přetáhněte do okna soubor **`valuace-akcii.zip`**. ZIP se nerozbaluje, soubory jsou v jeho kořeni.
+5. Klikněte na **Deploy site**. Aplikace poběží na `https://valuace-akcii.pages.dev`; pokud je název obsazený, Cloudflare přidá pár znaků.
+
+**Aktualizace:** v projektu klikněte na **Create a new deployment**, zvolte **Production** a nahrajte nový ZIP.
+
+Projekt vytvořený nahráním ZIP už nejde později přepnout na automatické nasazování z GitHubu. Na to byste založili nový projekt podle varianty A.
+
+### Varianta A – přes web Cloudflare s propojením na GitHub
 
 1. Zaregistrujte se / přihlaste na <https://dash.cloudflare.com> (stačí bezplatný účet).
 2. **Workers & Pages → Create → Import a repository** (Připojit Git).
@@ -61,12 +75,13 @@ npm run deploy          # nasadí a vypíše URL
 npm install
 npm run dev             # http://localhost:8787
 npm test                # testy valuačního modelu
+npm run build:zip       # ZIP pro ruční nahrání na Cloudflare (dist/valuace-akcii.zip)
 npm run typecheck       # kontrola TypeScriptu ve Workeru
 ```
 
 ## Na iPhonu jako aplikace
 
-1. Otevřete svou adresu `https://valuace-akcii.<vas-ucet>.workers.dev` v **Safari**.
+1. Otevřete svou adresu (`https://valuace-akcii.pages.dev` nebo `https://valuace-akcii.<vas-ucet>.workers.dev`) v **Safari**.
 2. Klepněte na **Sdílet** (čtvereček se šipkou) → **Přidat na plochu** → **Přidat**.
 3. Na ploše se objeví ikona **Valuace** – spouští se na celou obrazovku bez lišty prohlížeče, podporuje tmavý i světlý režim.
 
