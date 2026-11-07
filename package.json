@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "build:zip": "node scripts/build-zip.mjs",
+    "build:upload": "node scripts/build-upload.mjs",
     "typecheck": "tsc --noEmit",
     "test": "node --test \"test/**/*.test.mjs\""
   },

@@ -1,14 +1,14 @@
 /**
- * Sestaví aplikaci pro ruční nahrání na Cloudflare Pages (Direct Upload).
+ * Sestaví aplikaci pro ruční nasazení na Cloudflare bez GitHubu.
  *
- *   npm run build:zip
+ *   npm run build:upload
  *
  * Výsledek:
- *   dist/pages/                 – složka pro nahrání (drag & drop)
- *   dist/valuace-akcii.zip      – totéž jako ZIP (soubory jsou v kořeni archivu)
- *
- * Obsah: statické soubory z /public + _worker.js (API z /src, „advanced mode“
- * Pages Functions) + _routes.json (Worker se spouští jen pro /api/*).
+ *   dist/pages/                    – složka pro Cloudflare Pages (drag & drop)
+ *   dist/valuace-akcii.zip         – totéž jako ZIP (soubory v kořeni archivu):
+ *                                    statické soubory z /public + _worker.js (API)
+ *   dist/valuace-akcii-worker.js   – celá aplikace v jednom souboru pro vložení
+ *                                    do editoru Workeru v dashboardu Cloudflare
  */
 import { build } from "esbuild";
 import { cpSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
@@ -20,6 +20,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
 const out = join(dist, "pages");
 const zipPath = join(dist, "valuace-akcii.zip");
+const standalonePath = join(dist, "valuace-akcii-worker.js");
 
 rmSync(dist, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
@@ -39,8 +40,9 @@ await build({
   logLevel: "warning",
 });
 
-// 3) Worker jen pro /api/*, ostatní soubory servíruje Cloudflare přímo
-writeFileSync(join(out, "_routes.json"), JSON.stringify({ version: 1, include: ["/api/*"], exclude: [] }, null, 2) + "\n");
+// Pozn.: _routes.json záměrně chybí – nahrávání přes dashboard ho odmítá
+// („Pages _routes.json is not supported“). _worker.js sám předává statické
+// soubory přes env.ASSETS.
 
 // 4) ZIP (bez externích nástrojů, funguje i na Windows)
 function listFiles(dir) {
@@ -125,6 +127,53 @@ function makeZip(files, baseDir) {
 const files = listFiles(out).sort();
 writeFileSync(zipPath, makeZip(files, out));
 
+// 5) Vše v jednom souboru – statické soubory vložené do Workeru
+const TEXT_TYPES = {
+  ".html": "text/html; charset=utf-8",
+  ".css": "text/css; charset=utf-8",
+  ".js": "text/javascript; charset=utf-8",
+  ".json": "application/json; charset=utf-8",
+  ".webmanifest": "application/manifest+json; charset=utf-8",
+  ".svg": "image/svg+xml",
+};
+const BINARY_TYPES = { ".png": "image/png", ".ico": "image/x-icon", ".webp": "image/webp" };
+const publicDir = join(root, "public");
+const embedded = {};
+for (const file of listFiles(publicDir).sort()) {
+  const path = "/" + relative(publicDir, file).split(sep).join("/");
+  const ext = path.slice(path.lastIndexOf("."));
+  if (TEXT_TYPES[ext]) embedded[path] = { type: TEXT_TYPES[ext], body: readFileSync(file, "utf8") };
+  else if (BINARY_TYPES[ext]) embedded[path] = { type: BINARY_TYPES[ext], body: readFileSync(file).toString("base64"), base64: true };
+  else throw new Error(`Neznámý typ souboru: ${path}`);
+}
+await build({
+  entryPoints: [join(root, "src/standalone.ts")],
+  outfile: standalonePath,
+  bundle: true,
+  format: "esm",
+  platform: "neutral",
+  target: "es2022",
+  legalComments: "none",
+  logLevel: "warning",
+  banner: {
+    js: [
+      "// Valuace akcií – celá aplikace v jednom souboru pro Cloudflare Workers.",
+      "// Vložte celý obsah tohoto souboru do editoru Workeru (Edit code) místo",
+      "// původního kódu a klikněte na Deploy. Vygenerováno: npm run build:upload",
+    ].join("\n"),
+  },
+  plugins: [
+    {
+      name: "virtual-assets",
+      setup(b) {
+        b.onResolve({ filter: /^virtual:assets$/ }, () => ({ path: "assets", namespace: "virtual" }));
+        b.onLoad({ filter: /.*/, namespace: "virtual" }, () => ({ contents: JSON.stringify(embedded), loader: "json" }));
+      },
+    },
+  ],
+});
+
 console.log(`Hotovo: ${files.length} souborů`);
 for (const f of files) console.log("  " + relative(out, f).split(sep).join("/"));
-console.log(`\nSložka: ${relative(root, out)}\nZIP:    ${relative(root, zipPath)} (${(statSync(zipPath).size / 1024).toFixed(0)} kB)`);
+const kb = (p) => `${(statSync(p).size / 1024).toFixed(0)} kB`;
+console.log(`\nSložka:  ${relative(root, out)}\nZIP:     ${relative(root, zipPath)} (${kb(zipPath)})\nWorker:  ${relative(root, standalonePath)} (${kb(standalonePath)})`);

@@ -1,6 +1,6 @@
 /* Service worker: aplikace se načte okamžitě i offline, data se berou ze sítě
    a při výpadku z poslední uložené odpovědi. */
-const VERSION = "valuace-v1";
+const VERSION = "valuace-v2";
 const SHELL = [
   "/",
   "/css/app.css",

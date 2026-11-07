@@ -32,19 +32,36 @@ Výchozí předpoklady se odvozují z historie firmy (růst tržeb, průměrná 
 
 ## Nasazení na Cloudflare (jednorázově, ~5 minut)
 
-### Varianta 0 – nahrání ZIP souboru (bez GitHubu a bez instalace)
+### Bez GitHubu a bez instalace
 
-ZIP vytvoříte příkazem `npm run build:zip` (vznikne `dist/valuace-akcii.zip`). Obsahuje aplikaci, API jako `_worker.js` a `_routes.json`, které spouští API jen pro adresy `/api/*`.
+Soubory pro ruční nasazení vytvoří `npm run build:upload`:
+
+- `dist/valuace-akcii-worker.js` – celá aplikace v **jednom souboru** (doporučeno),
+- `dist/valuace-akcii.zip` – aplikace jako ZIP pro Cloudflare Pages.
+
+#### Varianta 0a – jeden soubor vložený do editoru (doporučeno)
 
 1. Přihlaste se na <https://dash.cloudflare.com> (stačí bezplatný účet).
-2. **Workers & Pages → Create application → Get started → Drag and drop your files**.
-3. Zadejte název projektu, např. `valuace-akcii` (bude součástí adresy).
-4. Přetáhněte do okna soubor **`valuace-akcii.zip`**. ZIP se nerozbaluje, soubory jsou v jeho kořeni.
-5. Klikněte na **Deploy site**. Aplikace poběží na `https://valuace-akcii.pages.dev`; pokud je název obsazený, Cloudflare přidá pár znaků.
+2. **Workers & Pages → Create application** a zvolte šablonu **Hello World** (Worker).
+3. Pojmenujte Worker, např. `valuace-akcii`, a klikněte na **Deploy**.
+4. Na stránce Workeru klikněte na **Edit code**.
+5. V editoru smažte celý ukázkový kód (Ctrl/Cmd+A, Delete).
+6. Otevřete `valuace-akcii-worker.js` v textovém editoru, zkopírujte celý obsah a vložte ho do editoru Cloudflare.
+7. Klikněte na **Deploy**. Aplikace poběží na `https://valuace-akcii.<vas-ucet>.workers.dev`.
 
-**Aktualizace:** v projektu klikněte na **Create a new deployment**, zvolte **Production** a nahrajte nový ZIP.
+**Aktualizace:** znovu **Edit code**, nahraďte celý obsah novým souborem a dejte **Deploy**.
 
-Projekt vytvořený nahráním ZIP už nejde později přepnout na automatické nasazování z GitHubu. Na to byste založili nový projekt podle varianty A.
+#### Varianta 0b – nahrání ZIP (Cloudflare Pages)
+
+1. **Workers & Pages → Create application → Get started → Drag and drop your files** (projekt typu Pages).
+2. Zadejte název projektu a přetáhněte **`valuace-akcii.zip`** (nerozbalovat).
+3. Klikněte na **Deploy site**. Adresa: `https://<nazev>.pages.dev`.
+
+ZIP obsahuje statické soubory a API jako `_worker.js`. Soubor `_routes.json` záměrně neobsahuje, protože ho nahrávání přes dashboard odmítá („Pages _routes.json is not supported“).
+
+Pokud dashboard ZIP odmítne i kvůli `_worker.js`, nahrávání vytváří Worker se statickými soubory místo Pages projektu. V tom případě použijte variantu 0a.
+
+**Aktualizace:** v projektu **Create a new deployment → Production** a nahrajte nový ZIP. Projekt nahraný ručně už nejde později přepnout na nasazování z GitHubu.
 
 ### Varianta A – přes web Cloudflare s propojením na GitHub
 
@@ -75,7 +92,7 @@ npm run deploy          # nasadí a vypíše URL
 npm install
 npm run dev             # http://localhost:8787
 npm test                # testy valuačního modelu
-npm run build:zip       # ZIP pro ruční nahrání na Cloudflare (dist/valuace-akcii.zip)
+npm run build:upload    # soubory pro ruční nasazení (dist/valuace-akcii-worker.js a .zip)
 npm run typecheck       # kontrola TypeScriptu ve Workeru
 ```
 
