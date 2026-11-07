@@ -1,0 +1,15 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  // Název Workeru = část výsledné URL: https://valuace-akcii.<vas-subdomain>.workers.dev
+  "name": "valuace-akcii",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // API obsluhuje Worker, vše ostatní jsou statické soubory aplikace
+    "run_worker_first": ["/api/*"]
+  },
+  "observability": { "enabled": true }
+}
