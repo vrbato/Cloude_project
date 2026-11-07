@@ -48,6 +48,7 @@ Soubory pro ruční nasazení vytvoří `npm run build:upload`:
 5. V editoru smažte celý ukázkový kód (Ctrl/Cmd+A, Delete).
 6. Otevřete `valuace-akcii-worker.js` v textovém editoru, zkopírujte celý obsah a vložte ho do editoru Cloudflare.
 7. Klikněte na **Deploy**. Aplikace poběží na `https://valuace-akcii.<vas-ucet>.workers.dev`.
+8. Kontrola: adresa `https://valuace-akcii.<vas-ucet>.workers.dev/api/health` musí vrátit `{"ok":true,...}`.
 
 **Aktualizace:** znovu **Edit code**, nahraďte celý obsah novým souborem a dejte **Deploy**.
 
@@ -59,7 +60,7 @@ Soubory pro ruční nasazení vytvoří `npm run build:upload`:
 
 ZIP obsahuje statické soubory a API jako `_worker.js`. Soubor `_routes.json` záměrně neobsahuje, protože ho nahrávání přes dashboard odmítá („Pages _routes.json is not supported“).
 
-Pokud dashboard ZIP odmítne i kvůli `_worker.js`, nahrávání vytváří Worker se statickými soubory místo Pages projektu. V tom případě použijte variantu 0a.
+**Pozor:** v současném dashboardu může „Drag and drop“ vytvořit Worker jen se statickými soubory. Stránka se pak načte, ale `_worker.js` se nespustí, takže chybí data. Aplikace v tom případě ukáže hlášku „Serverová část aplikace neběží“ a adresa `/api/health` vrátí 404. Použijte proto raději variantu 0a.
 
 **Aktualizace:** v projektu **Create a new deployment → Production** a nahrajte nový ZIP. Projekt nahraný ručně už nejde později přepnout na nasazování z GitHubu.
 

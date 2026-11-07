@@ -89,7 +89,17 @@ async function api(path, { timeout = 25000 } = {}) {
   const timer = setTimeout(() => ctrl.abort(), timeout);
   try {
     const res = await fetch(path, { signal: ctrl.signal });
-    const body = await res.json().catch(() => ({}));
+    const isJson = (res.headers.get("content-type") || "").includes("application/json");
+    const body = isJson ? await res.json().catch(() => null) : null;
+    if (!body) {
+      // Odpověď není JSON z našeho API → serverová část (Worker) vůbec neběží
+      const err = new Error(
+        `Server vrátil ${res.status === 200 ? "stránku" : `chybu ${res.status}`} místo dat. Aplikace je nejspíš nasazená jen jako statické soubory bez serverové části. Nasaďte ji jako Worker ze souboru valuace-akcii-worker.js (návod v README).`,
+      );
+      err.status = res.status;
+      err.apiDown = true;
+      throw err;
+    }
     if (!res.ok) {
       const err = new Error(body.error || `Chyba ${res.status}`);
       err.status = res.status;
@@ -281,7 +291,7 @@ function renderError(symbol, err) {
   app.innerHTML = `
     <section class="card state fade-in">
       <div class="state__icon">${ICON.alert}</div>
-      <h2>${err.status === 404 ? "Ticker nenalezen" : "Data se nepodařilo načíst"}</h2>
+      <h2>${err.apiDown ? "Serverová část aplikace neběží" : err.status === 404 ? "Ticker nenalezen" : "Data se nepodařilo načíst"}</h2>
       <p>${F.esc(err.message)}</p>
       <div class="chips" style="justify-content:center">
         <button class="btn btn--primary" id="retry" type="button">${ICON.refresh} Zkusit znovu</button>
