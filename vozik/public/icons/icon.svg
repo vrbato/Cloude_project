@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5ab8ff"/>
+      <stop offset="1" stop-color="#2a7de1"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <rect x="0" y="420" width="512" height="92" fill="#1f5fae" opacity=".55"/>
+  <g id="art">
+    <!-- náklad -->
+    <rect x="318" y="296" width="122" height="64" rx="10" fill="#e53935"/>
+    <rect x="318" y="226" width="122" height="64" rx="10" fill="#fdd835"/>
+    <rect x="318" y="156" width="122" height="64" rx="10" fill="#2e9d47"/>
+    <g fill="#fff" opacity=".22">
+      <rect x="340" y="300" width="7" height="56"/><rect x="411" y="300" width="7" height="56"/>
+      <rect x="340" y="230" width="7" height="56"/><rect x="411" y="230" width="7" height="56"/>
+      <rect x="340" y="160" width="7" height="56"/><rect x="411" y="160" width="7" height="56"/>
+    </g>
+    <!-- paleta a vidle -->
+    <rect x="310" y="362" width="138" height="16" rx="3" fill="#c98b4f"/>
+    <rect x="296" y="380" width="160" height="14" rx="4" fill="#37474f"/>
+    <!-- stožár -->
+    <rect x="282" y="120" width="20" height="284" rx="6" fill="#37474f"/>
+    <!-- kabina -->
+    <path d="M130 250 L150 150 H270 V280" fill="none" stroke="#263238" stroke-width="16" stroke-linejoin="round" stroke-linecap="round"/>
+    <rect x="96" y="262" width="196" height="132" rx="22" fill="#ffb703"/>
+    <rect x="96" y="262" width="196" height="30" rx="15" fill="#ffd166"/>
+    <rect x="76" y="300" width="44" height="94" rx="12" fill="#e08a00"/>
+    <!-- kola -->
+    <circle cx="150" cy="402" r="44" fill="#263238"/><circle cx="150" cy="402" r="17" fill="#b0bec5"/>
+    <circle cx="262" cy="406" r="38" fill="#263238"/><circle cx="262" cy="406" r="14" fill="#b0bec5"/>
+  </g>
+</svg>

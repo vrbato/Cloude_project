@@ -1,0 +1,11 @@
+{
+  "$schema": "../node_modules/wrangler/config-schema.json",
+  // Název Workeru = část výsledné URL: https://barevny-vozik.<vas-subdomain>.workers.dev
+  // Aplikace je čistě statická – Worker jen servíruje soubory ze složky public.
+  "name": "barevny-vozik",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application"
+  }
+}

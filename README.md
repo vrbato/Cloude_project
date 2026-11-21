@@ -1,5 +1,7 @@
 # Valuace akcií
 
+> V repozitáři je i druhá aplikace: **[Barevný vozík](vozik/README.md)** – náhodné karty pro dětskou hru s vysokozdvižným vozíkem (složka `vozik/`).
+
 Webová aplikace (PWA) pro rychlé ohodnocení akcie. Zadáte ticker z burzy a aplikace:
 
 - dohledá firmu a stáhne data (cena, výkazy za 4 roky + posledních 12 měsíců, kvartály, dividendy),

@@ -1,0 +1,13 @@
+{
+  "name": "barevny-vozik",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Barevný vozík – náhodné karty s pořadím nákladu pro dětskou hru s vysokozdvižným vozíkem. PWA pro iPhone, Cloudflare Workers.",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "dev": "npx wrangler dev",
+    "deploy": "npx wrangler deploy",
+    "test": "node --test \"test/**/*.test.mjs\""
+  }
+}

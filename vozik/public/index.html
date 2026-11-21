@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="cs">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Barevný vozík</title>
+    <meta name="description" content="Náhodné karty pro dětskou hru s vysokozdvižným vozíkem – barevné pořadí nákladu." />
+
+    <!-- PWA / iPhone -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#dff0ff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1626" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Vozík" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/icons/icon-192.png" sizes="192x192" type="image/png" />
+
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="modulepreload" href="/js/game.js" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="top">
+        <div class="brand">
+          <img src="/icons/icon.svg" alt="" width="34" height="34" />
+          <span>Barevný vozík</span>
+        </div>
+        <button class="icon-btn" id="btn-settings" type="button" aria-label="Nastavení">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
+          </svg>
+        </button>
+      </header>
+
+      <div class="scores" id="scores" hidden></div>
+
+      <main class="stage" id="stage">
+        <!-- úvodní obrazovka -->
+        <section class="intro" id="intro">
+          <img class="intro__art" src="/icons/icon.svg" alt="" />
+          <h1>Postav náklad podle karty!</h1>
+          <p class="intro__summary" id="summary"></p>
+        </section>
+
+        <!-- karta -->
+        <section class="card" id="card" hidden aria-live="polite">
+          <div class="card__head">
+            <span id="card-no">Karta 1</span>
+            <span id="card-count"></span>
+          </div>
+          <div class="stack" id="stack" role="img"></div>
+          <div class="pallet" aria-hidden="true"><i></i><i></i><i></i></div>
+          <div class="card__overlay" id="overlay" hidden></div>
+        </section>
+      </main>
+
+      <footer class="controls">
+        <div class="timer" id="timer" hidden>
+          <div class="timer__bar"><i id="timer-fill"></i></div>
+          <span class="timer__text" id="timer-text">0:00</span>
+        </div>
+        <p class="controls__hint" id="hint" hidden></p>
+        <div class="controls__row" id="actions"></div>
+      </footer>
+    </div>
+
+    <!-- nastavení -->
+    <div class="sheet" id="sheet" hidden>
+      <div class="sheet__panel" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+        <div class="sheet__head">
+          <h2 id="sheet-title">Nastavení</h2>
+          <button class="pill-btn" id="btn-close" type="button">Hotovo</button>
+        </div>
+        <div class="sheet__body" id="settings"></div>
+      </div>
+    </div>
+
+    <!-- vítěz -->
+    <div class="winner" id="winner" hidden>
+      <div class="winner__box">
+        <div class="winner__cup" aria-hidden="true">🏆</div>
+        <h2 id="winner-title">Vítěz</h2>
+        <p id="winner-text"></p>
+        <button class="btn btn--primary" id="btn-again" type="button">Nová hra</button>
+      </div>
+    </div>
+
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+    <script type="module" src="/js/app.js"></script>
+  </body>
+</html>
