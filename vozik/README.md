@@ -1,27 +1,49 @@
 # Barevný vozík
 
-Aplikace do mobilu místo karet k dětské hře s vysokozdvižným vozíkem. Na každé
-kartě je **náhodné barevné pořadí nákladu**, které mají děti vozíkem postavit na sebe
-(odspodu nahoru, 1 = první kus na paletě).
+Aplikace do mobilu místo kartiček k dětské hře s vysokozdvižnými vozíky. Každá karta
+je **náhodná věž z barevných dílků**, kterou mají děti vozíkem postavit na podstavec
+(odspodu nahoru, 1 = první dílek na podstavci).
 
-- barvy a počty kusů se nastaví podle vaší krabice (12 barev, 0–6 kusů od každé),
-- výška věže: rozsah (např. 3–5 kusů) nebo předvolby Lehká / Střední / Těžká,
-- volitelně žádné dvě stejné barvy nad sebou, nová karta se nikdy neopakuje hned po sobě,
-- **časovač** (30 s – 2 min, posledních 5 s pípá),
-- **počítání bodů** pro 1–4 hráče („Kdo to postavil první?“), hra do 5/10/15/20 karet,
-  vrácení omylem přiděleného bodu; pro jednoho hráče stopky a rekord,
-- předčítání barev česky (iPhone: hlas Zuzana), zvuky, konfety,
-- displej během hry nezhasne, funguje bez internetu, tmavý režim, na výšku i na šířku.
+## Obsah krabice (podle toho aplikace generuje karty)
 
-Vše běží v telefonu, nastavení se ukládá jen v zařízení. Náhoda je z `crypto.getRandomValues`.
+- 2 vozíky (červený 01, žlutý 02) a 2 podstavce,
+- 18 dílků = 3 barvy (červená, žlutá, zelená) × 3 tvary × 2 kusy:
+  **kolečko** (s trojúhelníkem), **osmiúhelník** (se čtvercem), **čtverec** (s kroužkem).
+
+Karta nikdy nechce víc kusů, než je v krabici. V souboji staví oba hráči **stejnou kartu**,
+proto je na ní každý dílek nejvýš jednou (každý si vezme jeden ze dvou kusů).
+
+## Jak se hraje
+
+**Obtížnost** jako na originálních kartách: ★ 1 dílek · ★★ 2–3 · ★★★ 4–5 · ★★★★ 6–7 · ★★★★★ 8–9.
+
+**Režimy**
+
+| Režim | Pravidla |
+| --- | --- |
+| **Sám** | Za každou postavenou kartu 1–3 hvězdy podle rychlosti (≤ 6 s na dílek = ★★★), rekord pro každou obtížnost. |
+| **Souboj** | Oba vozíky staví stejnou kartu. Kdo je hotový, klepne na svou barvu, dospělý potvrdí „Sedí!“ (nebo „Ještě ne“ a staví se dál). Hraje se do 3/5/10/15 bodů. |
+| **Střídání** | 2–4 hráči se střídají, každý staví svou kartu (s časovačem: kdo nestihne, nedostane bod). |
+
+**Další možnosti** (Nastavení ⚙):
+
+- **Musí sedět i tvar** – jako originál; pro nejmenší vypnout, pak stačí barva,
+- **odpočet 3‑2‑1** – karta se ukáže všem najednou (fér start),
+- **časovač** 30 s – 2 min, posledních 5 s pípá,
+- **paměťová výzva** – karta po 5/10/15 s zmizí, staví se zpaměti, oko ji na 2 s ukáže,
+- předčítání česky („Odspodu: červené kolečko, žlutý osmiúhelník…“), zvuky, konfety,
+- vrácení omylem přiděleného bodu, jména hráčů, displej během hry nezhasne,
+- funguje bez internetu, tmavý režim, na výšku i na šířku.
+
+Náhoda je z `crypto.getRandomValues`, nastavení se ukládá jen v telefonu.
 
 ## Soubory
 
 | Soubor | Co dělá |
 | --- | --- |
 | `public/` | celá aplikace (HTML/CSS/JS bez build kroku) |
-| `public/js/game.js` | barvy a generování karet (testované) |
-| `public/js/app.js` | obrazovky, časovač, body, nastavení |
+| `public/js/game.js` | dílky ze sady, obtížnosti a generování karet (testované) |
+| `public/js/app.js` | obrazovky, režimy, odpočet, časovač, body, nastavení |
 | `cloudflare/barevny-vozik-worker.js` | **celá aplikace v jednom souboru** pro Cloudflare (vygenerováno) |
 | `scripts/build.mjs` | vytvoří soubor výše (`npm run build`) |
 | `scripts/icons.mjs` | PNG ikony z `public/icons/icon.svg` (potřebuje Playwright) |

@@ -1,7 +1,7 @@
 /* Service worker: aplikace se otevře okamžitě a funguje i bez internetu.
    Soubory se berou z cache a na pozadí se aktualizují (stale-while-revalidate).
    Při větší změně zvyšte VERSION. */
-const VERSION = "vozik-v1";
+const VERSION = "vozik-v2";
 const SHELL = [
   "/",
   "/css/app.css",

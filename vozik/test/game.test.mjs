@@ -1,8 +1,17 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { generateStack, maxNoAdjacentLength, pieces, describe, COLOR_BY_ID } from "../public/js/game.js";
-
-const six = { red: 1, yellow: 1, blue: 1, green: 1, orange: 1, purple: 1 };
+import {
+  COPIES,
+  LEVELS,
+  colorOf,
+  describe,
+  generateStack,
+  inventory,
+  maxNoAdjacentLength,
+  pieceName,
+  pieces,
+  speedStars,
+} from "../public/js/game.js";
 
 function usage(stack) {
   const u = {};
@@ -10,65 +19,82 @@ function usage(stack) {
   return u;
 }
 
-test("výška věže je v rozsahu a nepoužije víc kusů, než je v sadě", () => {
-  for (let i = 0; i < 2000; i++) {
-    const s = generateStack({ counts: six, min: 3, max: 5 });
-    assert.ok(s.length >= 3 && s.length <= 5, `délka ${s.length}`);
-    for (const [id, n] of Object.entries(usage(s))) assert.ok(n <= six[id], `${id} ×${n}`);
+const noRepeatedColors = (s) => s.every((k, i) => i === 0 || colorOf(k) !== colorOf(s[i - 1]));
+
+test("sada odpovídá krabici: 3 barvy × 3 tvary × 2 kusy = 18 dílků", () => {
+  const inv = inventory({ shapes: true, builders: 1 });
+  assert.equal(Object.keys(inv).length, 9);
+  assert.equal(Object.values(inv).reduce((a, b) => a + b, 0), 18);
+  assert.deepEqual(inventory({ shapes: false, builders: 1 }), { red: 6, yellow: 6, green: 6 });
+});
+
+test("souboj: každý dílek nejvýš jednou, aby oba hráči postavili stejnou kartu", () => {
+  const counts = inventory({ shapes: true, builders: 2 });
+  for (const lv of LEVELS) {
+    for (let i = 0; i < 500; i++) {
+      const s = generateStack({ counts, min: lv.min, max: lv.max });
+      assert.ok(s.length >= lv.min && s.length <= lv.max, `úroveň ${lv.stars}: délka ${s.length}`);
+      for (const [k, n] of Object.entries(usage(s))) assert.ok(n * 2 <= COPIES, `${k} ×${n}`);
+      assert.ok(noRepeatedColors(s), s.join(","));
+    }
   }
 });
 
-test("žádné dvě stejné barvy nad sebou", () => {
-  const counts = { red: 3, blue: 3, yellow: 2 };
-  for (let i = 0; i < 2000; i++) {
-    const s = generateStack({ counts, min: 4, max: 8, noAdjacent: true });
-    for (let k = 1; k < s.length; k++) assert.notEqual(s[k], s[k - 1], s.join(","));
-    for (const [id, n] of Object.entries(usage(s))) assert.ok(n <= counts[id]);
+test("souboj jen na barvy: každá barva nejvýš 3× (6 kusů ÷ 2 hráči)", () => {
+  const counts = inventory({ shapes: false, builders: 2 });
+  for (let i = 0; i < 1000; i++) {
+    const s = generateStack({ counts, min: 8, max: 9 });
+    for (const [k, n] of Object.entries(usage(s))) assert.ok(n <= 3, `${k} ×${n}`);
   }
 });
 
-test("nová karta se neshoduje s předchozí", () => {
+test("hra pro jednoho nepoužije víc kusů, než je v krabici", () => {
+  const counts = inventory({ shapes: true, builders: 1 });
+  for (let i = 0; i < 1000; i++) {
+    const s = generateStack({ counts, min: 8, max: 9, noAdjacent: false });
+    for (const [k, n] of Object.entries(usage(s))) assert.ok(n <= COPIES, `${k} ×${n}`);
+  }
+});
+
+test("nová karta se neshoduje s předchozí (i u jednoho dílku)", () => {
+  const counts = inventory({ shapes: true, builders: 2 });
   let prev = null;
-  for (let i = 0; i < 500; i++) {
-    const s = generateStack({ counts: six, min: 3, max: 3, previous: prev });
+  for (let i = 0; i < 300; i++) {
+    const s = generateStack({ counts, min: 1, max: 1, previous: prev });
     if (prev) assert.notDeepEqual(s, prev);
     prev = s;
   }
 });
 
-test("max větší než sada se zkrátí, prázdná sada vrací prázdnou kartu", () => {
-  const s = generateStack({ counts: { red: 1, blue: 1 }, min: 5, max: 6 });
-  assert.equal(s.length, 2);
-  assert.deepEqual(generateStack({ counts: {}, min: 3, max: 5 }), []);
-  assert.deepEqual(generateStack({ counts: { unknown: 3 }, min: 3, max: 5 }), []);
-});
-
-test("jedna barva s víc kusy a zákazem opakování → 1 kus", () => {
-  assert.equal(maxNoAdjacentLength({ red: 4 }), 1);
-  assert.deepEqual(generateStack({ counts: { red: 4 }, min: 3, max: 5 }), ["red"]);
-  assert.equal(generateStack({ counts: { red: 4 }, min: 3, max: 3, noAdjacent: false }).length, 3);
-});
-
-test("maxNoAdjacentLength", () => {
-  assert.equal(maxNoAdjacentLength(six), 6);
-  assert.equal(maxNoAdjacentLength({ red: 3, blue: 1 }), 3); // r b r
-  assert.equal(maxNoAdjacentLength({ red: 2, blue: 2 }), 4);
-});
-
-test("všechny barvy se objevují zhruba stejně často", () => {
+test("všechny dílky se objevují zhruba stejně často", () => {
+  const counts = inventory({ shapes: true, builders: 2 });
   const hits = {};
   const N = 6000;
-  for (let i = 0; i < N; i++) for (const id of generateStack({ counts: six, min: 3, max: 3 })) hits[id] = (hits[id] || 0) + 1;
-  for (const id of Object.keys(six)) {
-    const share = hits[id] / (N * 3);
-    assert.ok(Math.abs(share - 1 / 6) < 0.02, `${id}: ${share.toFixed(3)}`);
+  for (let i = 0; i < N; i++) for (const k of generateStack({ counts, min: 3, max: 3, noAdjacent: false })) hits[k] = (hits[k] || 0) + 1;
+  for (const k of Object.keys(counts)) {
+    const share = hits[k] / (N * 3);
+    assert.ok(Math.abs(share - 1 / 9) < 0.015, `${k}: ${share.toFixed(3)}`);
   }
 });
 
-test("texty", () => {
-  assert.equal(pieces(1), "1 kus");
-  assert.equal(pieces(3), "3 kusy");
-  assert.equal(pieces(5), "5 kusů");
-  assert.equal(describe(["red", "yellow"]), "Odspodu: červená, žlutá.");
-  assert.equal(COLOR_BY_ID.blue.name, "modrá");
+test("okrajové případy", () => {
+  assert.deepEqual(generateStack({ counts: {}, min: 3, max: 5 }), []);
+  assert.equal(generateStack({ counts: { "red:circle": 1, "red:octagon": 1 }, min: 5, max: 6, noAdjacent: false }).length, 2);
+  assert.equal(maxNoAdjacentLength({ "red:circle": 2, "red:octagon": 2 }), 1);
+  assert.equal(maxNoAdjacentLength(inventory({ shapes: true, builders: 2 })), 9);
+  assert.equal(maxNoAdjacentLength({ red: 3, blue: 1 }), 3);
+});
+
+test("texty a hvězdičky", () => {
+  assert.equal(pieces(1), "1 dílek");
+  assert.equal(pieces(3), "3 dílky");
+  assert.equal(pieces(7), "7 dílků");
+  assert.equal(pieceName("red:circle"), "červené kolečko");
+  assert.equal(pieceName("yellow:octagon"), "žlutý osmiúhelník");
+  assert.equal(pieceName("green:squircle"), "zelený čtverec");
+  assert.equal(pieceName("green"), "zelená");
+  assert.equal(describe(["red:circle", "yellow"]), "Odspodu: červené kolečko, žlutá.");
+  assert.equal(speedStars(15000, 5), 3);
+  assert.equal(speedStars(50000, 5), 2);
+  assert.equal(speedStars(90000, 5), 1);
 });
